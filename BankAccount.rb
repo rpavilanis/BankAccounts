@@ -26,14 +26,15 @@ module Bank
       puts "Your new balance is $#{@balance}."
     end
 
-    def deposit (deposit_amount)
+    def deposit
       puts "How much would you like to deposit today? Please enter a number in dollars and cents (e.g., 58.25)."
-      @deposit_amount = gets.chomp.to_f
-      if @deposit_amount
-      else
-        "Please try again. Enter a number in dollars and cents."
-        @deposit_amount = gets.chomp.to_f
+      @deposit_amount = gets.chomp
+      until (@deposit_amount.is_a? Float)
+        puts "Please try again. Enter a number in dollars and cents."
+        @deposit_amount = gets.chomp rescue nil
       end
+
+      @balance = @deposit_amount.to_f + @balance.to_f
 
       check_balance
 
@@ -46,7 +47,10 @@ module Bank
 
 account = Account.new(id: "45567", balance: 575.256)
 
-puts account.check_balance 
+puts account.check_balance
+puts account.deposit
+
+
 
 
   # class owner
