@@ -8,7 +8,7 @@ module Bank
 # class for bank accounts
   class Account
 
-    attr_accessor :deposit_amount, :withdraw_amount, :owner
+    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id
 # initializes bank account with an ID and starting balance, returns Argument Error if proposed starting balance is not at or above 0.
     def initialize (account_hash)
       @id = account_hash[:id]
@@ -45,36 +45,35 @@ module Bank
         display_current_balance
       end
     end
-
-    def to_s
-      # return account.owner
-    end
   end
 
-
-  # Add an owner property to each Account to track information about who owns the account.
-  # The Account can be created with an owner, OR you can create a method that will add the owner after the Account has already been created.
+# class for the owners of these bank accounts
   class Owner
 
-    attr_accessor :first_name, :last_name, :id, :street_address, :city, :state
-
+    attr_accessor :first_name, :last_name, :street_address, :city, :state, :zip
+# initializes user tied to bank account
     def initialize (owner_hash)
 
       @first_name = owner_hash[:first_name]
       @last_name = owner_hash[:last_name]
-      @id = owner_hash[:id]
       @address = owner_hash[:street_address]
       @city = owner_hash[:city]
       @state = owner_hash[:state]
+      @zip = owner_hash[:zip]
 
     end
-
   end
 end
 
-account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI")
+account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
+
+account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
 
 puts account.display_current_balance
 puts account.deposit(50.65)
 puts account.withdraw(500.00)
-puts account.owner
+puts account.id
+
+puts account2.display_current_balance
+puts account2.deposit(100.00)
+puts account2.withdraw(300.00)
