@@ -22,17 +22,24 @@ module Bank
     end
 
     def check_balance
-      return @balance.to_f
+      puts "Your new balance is $#{@balance}."
     end
 
     def deposit (deposit_amount)
+
+    check_balance
+
     end
 
     def withdraw (withdraw_amount)
+
+    check_balance
     end
 
-account = Account.new("45567", 575.25)
-account.check_balance 
+account = Account.new(id: "45567", balance: 575.25)
+
+puts account.check_balance
+
   # class owner
   #
   #   attr_accessor :first_name, :bank_ID, :street_address, :city, :state
