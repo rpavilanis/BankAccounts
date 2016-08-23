@@ -62,6 +62,12 @@ module Bank
       @zip = owner_hash[:zip]
 
     end
+
+    # def to_s
+    #   return "Name: #{@first_name}."
+    #   puts "Name: #{@first_name}."
+    # end
+
   end
 end
 
@@ -73,7 +79,11 @@ puts account.display_current_balance
 puts account.deposit(50.65)
 puts account.withdraw(500.00)
 puts account.id
+puts
+puts
+puts account
 
 puts account2.display_current_balance
 puts account2.deposit(100.00)
 puts account2.withdraw(300.00)
+puts account2
