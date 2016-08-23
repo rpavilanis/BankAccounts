@@ -1,8 +1,6 @@
-# A new account should be created with an ID and an initial balance
+
 # Should have a withdraw method that accepts a single parameter which represents the amount of money that will be withdrawn. This method should return the updated account balance.
 # Should have a deposit method that accepts a single parameter which represents the amount of money that will be deposited. This method should return the updated account balance.
-# Should be able to access the current balance of an account at any time.
-#
 
 # Bank Account - Wave 1
 # Rachel Pavilanis
@@ -12,33 +10,44 @@ module Bank
 
   class Account
 
-    #attr_accessor :id, :balance
+    attr_reader :id, :balance
 
     def initialize (account_hash)
-
       @id = account_hash[:id]
       @balance = account_hash[:balance]
+    end
 
+    def change_two_decimals
+      @balance = sprintf('%0.2f', @balance)  # => "550.50"
     end
 
     def check_balance
+      change_two_decimals
       puts "Your new balance is $#{@balance}."
     end
 
     def deposit (deposit_amount)
+      puts "How much would you like to deposit today? Please enter a number in dollars and cents (e.g., 58.25)."
+      @deposit_amount = gets.chomp.to_f
+      if @deposit_amount
+      else
+        "Please try again. Enter a number in dollars and cents."
+        @deposit_amount = gets.chomp.to_f
+      end
 
-    check_balance
+      check_balance
 
     end
 
     def withdraw (withdraw_amount)
 
-    check_balance
+      check_balance
     end
 
-account = Account.new(id: "45567", balance: 575.25)
+account = Account.new(id: "45567", balance: 575.256)
 
-puts account.check_balance
+puts account.check_balance 
+
 
   # class owner
   #
