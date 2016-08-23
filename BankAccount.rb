@@ -8,11 +8,12 @@ module Bank
 # class for bank accounts
   class Account
 
-    attr_accessor :deposit_amount, :withdraw_amount
+    attr_accessor :deposit_amount, :withdraw_amount, :owner
 # initializes bank account with an ID and starting balance, returns Argument Error if proposed starting balance is not at or above 0.
     def initialize (account_hash)
       @id = account_hash[:id]
       @balance = account_hash[:balance]
+      @owner = Owner.new(account_hash[:owner])
 
       unless @balance >= 0
         raise ArgumentError.new("You need a balance above $0 to open your account.")
@@ -44,32 +45,35 @@ module Bank
         display_current_balance
       end
     end
+
+    def to_s
+      return
+    end
   end
 
 
+  # Add an owner property to each Account to track information about who owns the account.
+  # The Account can be created with an owner, OR you can create a method that will add the owner after the Account has already been created.
   class Owner
 
-    attr_accessor :first_name, :bank_ID, :street_address, :city, :state
+    attr_accessor :first_name, :last_name, :id, :street_address, :city, :state
 
     def initialize (owner_hash)
 
       @first_name = owner_hash[:first_name],
-      @bank_ID = owner_hash[:bank_ID],
+      @last_name = owner_hash[:last_name],
+      @id = owner_hash[:id],
       @address = owner_hash[:street_address],
       @city = owner_hash[:city],
       @state = owner_hash[:state]
-  
+
     end
-
-  end
-  end
-
 
   end
 end
 
-account = Bank::Account.new(id: "45567", balance: 575.256)
+account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI")
 
 puts account.display_current_balance
 puts account.deposit(50.65)
-puts account.withdraw(700.00)
+puts account.withdraw(500.00)
