@@ -13,7 +13,7 @@ module Bank
     def initialize (account_hash)
       @id = account_hash[:id]
       @balance = account_hash[:balance]
-      @owner = Owner.new(account_hash[:owner])
+      @owner = Owner.new(account_hash)
 
       unless @balance >= 0
         raise ArgumentError.new("You need a balance above $0 to open your account.")
@@ -47,7 +47,7 @@ module Bank
     end
 
     def to_s
-      return
+      # return account.owner
     end
   end
 
@@ -60,11 +60,11 @@ module Bank
 
     def initialize (owner_hash)
 
-      @first_name = owner_hash[:first_name],
-      @last_name = owner_hash[:last_name],
-      @id = owner_hash[:id],
-      @address = owner_hash[:street_address],
-      @city = owner_hash[:city],
+      @first_name = owner_hash[:first_name]
+      @last_name = owner_hash[:last_name]
+      @id = owner_hash[:id]
+      @address = owner_hash[:street_address]
+      @city = owner_hash[:city]
       @state = owner_hash[:state]
 
     end
@@ -77,3 +77,4 @@ account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel",
 puts account.display_current_balance
 puts account.deposit(50.65)
 puts account.withdraw(500.00)
+puts account.owner
