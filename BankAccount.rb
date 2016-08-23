@@ -1,7 +1,7 @@
 
 # Should have a withdraw method that accepts a single parameter which represents the amount of money that will be withdrawn. This method should return the updated account balance.
-# Should have a deposit method that accepts a single parameter which represents the amount of money that will be deposited. This method should return the updated account balance.
-
+# A new account cannot be created with initial negative balance - this will raise an ArgumentError (Google this)
+# The withdraw method does not allow the account to go negative - Will output a warning message and return the original un-modified balance
 # Bank Account - Wave 1
 # Rachel Pavilanis
 # August 23, 2016
@@ -10,45 +10,46 @@ module Bank
 
   class Account
 
-    attr_reader :id, :balance
+    attr_accessor :id, :balance, :deposit_amount, :withdraw_amount
 
     def initialize (account_hash)
       @id = account_hash[:id]
       @balance = account_hash[:balance]
+
     end
 
     def change_two_decimals
       @balance = sprintf('%0.2f', @balance)  # => "550.50"
     end
 
-    def check_balance
+    def display_current_balance
       change_two_decimals
       puts "Your new balance is $#{@balance}."
     end
 
-    def deposit
-      puts "How much would you like to deposit today? Please enter a number in dollars and cents (e.g., 58.25)."
-      @deposit_amount = gets.chomp
-      until (@deposit_amount.is_a? Float)
-        puts "Please try again. Enter a number in dollars and cents."
-        @deposit_amount = gets.chomp rescue nil
-      end
+    def deposit (deposit_amount)
+      @balance = deposit_amount.to_f + @balance.to_f
+      display_current_balance
 
-      @balance = @deposit_amount.to_f + @balance.to_f
-
-      check_balance
-
+      # user_input functionality
+      # puts "How much would you like to deposit today? Please enter a number in dollars and cents (e.g., 58.25)."
+      # @deposit_amount = gets.chomp
+      # until (@deposit_amount.is_a? Float)
+      #   puts "Please try again. Enter a number in dollars and cents."
+      #   @deposit_amount = gets.chomp #rescue nil
+      # end
     end
 
     def withdraw (withdraw_amount)
-
-      check_balance
+      @balance = @balance.to_f - withdraw_amount.to_f
+      display_current_balance
     end
 
 account = Account.new(id: "45567", balance: 575.256)
 
-puts account.check_balance
-puts account.deposit
+puts account.display_current_balance
+puts account.deposit(50.65)
+puts account.withdraw(75.00)
 
 
 
