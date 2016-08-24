@@ -11,35 +11,36 @@ module Bank
 # class for bank accounts
   class Account
 
-    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id
+    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date
 # initializes bank account with an ID and starting balance, returns Argument Error if proposed starting balance is not at or above 0.
     def initialize (account_hash)
       @id = account_hash[:id]
       @balance = account_hash[:balance]
+      @open_date = account_hash[:open_date]
       @owner = Owner.new(account_hash)
 
       unless @balance >= 0
         raise ArgumentError.new("You need a balance above $0 to open your account.")
       end
 
-      # counter = 1
-      # CSV.open("accounts.csv", 'r').each do |line|
-      #   if counter != 1
-      #     people << Person.new(line[0])
-      #     ap line [0]
-      #   end
-      #   counter +=1
-      # end
+      @accounts = []
+
+      CSV.open("accounts.csv", 'r').each do |line|
+        account_hash[:id] << line[0]
+        account_hash[:balance] << line[1]
+        account_hash[:open_date] << line[2]
+        @accounts << account_hash
+      end
     end
 
-    # def self.all
-    # returns a collection of Account instances, representing all of the Accounts described in the CSV. See below for the CSV file specifications
-    # return account_hash (?)
-    # end
-    #
+# returns all accounts when called
+    def self.all
+      return account_hash
+    end
+
     # def self.find(id)
     # returns an instance of Account where the value of the id field in the CSV matches the passed parameter
-        # use if statement - if they equal then return, if not, return error
+    #     use if statement - if they equal then return, if not, return error
     # end
 # formats numbers in a dollar format
     def change_two_decimals
@@ -101,19 +102,20 @@ module Bank
   end
 end
 
-account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
-
-account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
-
-puts account.display_current_balance
-puts account.deposit(50.65)
-puts account.withdraw(500.00)
-puts account.id
-puts
-puts
-puts account
-
-puts account2.display_current_balance
-puts account2.deposit(100.00)
-puts account2.withdraw(300.00)
-puts account2
+Bank::Account.new
+# account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
+#
+# account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
+#
+# puts account.display_current_balance
+# puts account.deposit(50.65)
+# puts account.withdraw(500.00)
+# puts account.id
+# puts
+# puts
+# puts account
+#
+# puts account2.display_current_balance
+# puts account2.deposit(100.00)
+# puts account2.withdraw(300.00)
+# puts account2
