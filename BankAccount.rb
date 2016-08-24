@@ -3,6 +3,9 @@
 # Rachel Pavilanis
 # August 23, 2016
 
+require 'csv'
+require 'awesome_print'
+
 module Bank
 
 # class for bank accounts
@@ -18,8 +21,26 @@ module Bank
       unless @balance >= 0
         raise ArgumentError.new("You need a balance above $0 to open your account.")
       end
+
+      # counter = 1
+      # CSV.open("accounts.csv", 'r').each do |line|
+      #   if counter != 1
+      #     people << Person.new(line[0])
+      #     ap line [0]
+      #   end
+      #   counter +=1
+      # end
     end
 
+    # def self.all
+    # returns a collection of Account instances, representing all of the Accounts described in the CSV. See below for the CSV file specifications
+    # return account_hash (?)
+    # end
+    #
+    # def self.find(id)
+    # returns an instance of Account where the value of the id field in the CSV matches the passed parameter
+        # use if statement - if they equal then return, if not, return error
+    # end
 # formats numbers in a dollar format
     def change_two_decimals
       @balance = sprintf('%0.2f', @balance)  # => "550.50"
@@ -62,6 +83,15 @@ module Bank
       @zip = owner_hash[:zip]
 
     end
+
+    # def self.all
+    # returns a collection of Owner instances, representing all of the Owners described in the CSV. See below for the CSV file specifications
+
+    # end
+    #
+    # def self.find(id)
+    # self.find(id) - returns an instance of Owner where the value of the id field in the CSV matches the passed parameter
+    # end cd /
 
     # def to_s
     #   return "Name: #{@first_name}."
