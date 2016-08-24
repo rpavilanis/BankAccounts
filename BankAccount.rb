@@ -125,7 +125,7 @@ module Bank
 # returns an instance of User where the value of the id field in the CSV matches the passed parameter
     def self.find(id_number)
       @@users.each do |user|
-        if user.id == id_number
+        if user.owner_ID == id_number
           matching_account = user
           puts "That matches an ID in our system. Here is your account information."
           return ap matching_account
@@ -140,7 +140,7 @@ module Bank
     #   puts "Name: #{@first_name}."
     # end
 end
-end
+
 
 # Bank::Account.accounts
 # puts
@@ -150,7 +150,7 @@ end
 # puts
 # Bank::Account.find(1223)
 
-Bank::Owner.users
+Bank::Owner.owners
 puts
 Bank::Owner.all
 puts
