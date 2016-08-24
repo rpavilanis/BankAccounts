@@ -86,43 +86,77 @@ module Bank
 # class for the owners of these bank accounts
   class Owner
 
-    attr_accessor :first_name, :last_name, :owner_ID,  :street_address, :city, :state
+    attr_accessor :owner_ID, :first_name, :last_name,   :street_address, :city, :state
 # initializes user tied to bank account
     def initialize (owner_hash)
 
+      @owner_ID = owner_hash[:owner_ID]
       @first_name = owner_hash[:first_name]
       @last_name = owner_hash[:last_name]
-      @owner_ID = owner_hash[:owner_ID]
       @address = owner_hash[:street_address]
       @city = owner_hash[:city]
       @state = owner_hash[:state]
 
     end
 
-    # def self.all
-    # returns a collection of Owner instances, representing all of the Owners described in the CSV. See below for the CSV file specifications
+# class to read in CSV File
+    def self.owners
 
-    # end
-    #
-    # def self.find(id)
-    # self.find(id) - returns an instance of Owner where the value of the id field in the CSV matches the passed parameter
-    # end cd /
+      @@users = []
+
+      owner_hash = {}
+
+      CSV.open("support/owners.csv", 'r').each do |line|
+        owner_hash[:owner_ID] = line[0].to_i
+        owner_hash[:first_name] = line[1]
+        owner_hash[:last_name] = line[2]
+        owner_hash[:street_address] = line[3]
+        owner_hash[:city] = line[4]
+        owner_hash[:state] = line[5]
+        @@users << Bank::Owner.new(owner_hash)
+      end
+    end
+
+# returns all accounts when called
+    def self.all
+      ap @@users
+    end
+
+# returns an instance of User where the value of the id field in the CSV matches the passed parameter
+    def self.find(id_number)
+      @@users.each do |user|
+        if user.id == id_number
+          matching_account = user
+          puts "That matches an ID in our system. Here is your account information."
+          return ap matching_account
+        end
+      end
+      puts "That ID does not match any users in our system."
+    end
+  end
 
     # def to_s
     #   return "Name: #{@first_name}."
     #   puts "Name: #{@first_name}."
     # end
-
-  end
+end
 end
 
-Bank::Account.accounts
+# Bank::Account.accounts
+# puts
+# Bank::Account.all
+# puts
+# Bank::Account.find(1213)
+# puts
+# Bank::Account.find(1223)
+
+Bank::Owner.users
 puts
-Bank::Account.all
+Bank::Owner.all
 puts
-Bank::Account.find(1213)
+Bank::Owner.find(16)
 puts
-Bank::Account.find(1223)
+Bank::Owner.find(50)
 
 
 # account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
