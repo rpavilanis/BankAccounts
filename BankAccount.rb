@@ -22,26 +22,23 @@ module Bank
       unless @balance >= 0
         raise ArgumentError.new("You need a balance above $0 to open your account.")
       end
+    end
 
-      @accounts = []
+# class to read in CSV File
+    def self.accounts
 
-      CSV.open("accounts.csv", 'r').each do |line|
-        account_hash[:id] << line[0]
-        account_hash[:balance] << line[1]
-        account_hash[:open_date] << line[2]
-        @accounts << account_hash
+      @@accounts = []
+
+      account_hash = {}
+
+      CSV.open("support/accounts.csv", 'r').each do |line|
+        account_hash[:id] = line[0].to_i
+        account_hash[:balance] = line[1].to_f / 100
+        account_hash[:open_date] = line[2]
+        @@accounts << Bank::Account.new(account_hash)
       end
     end
 
-# returns all accounts when called
-    def self.all
-      return account_hash
-    end
-
-    # def self.find(id)
-    # returns an instance of Account where the value of the id field in the CSV matches the passed parameter
-    #     use if statement - if they equal then return, if not, return error
-    # end
 # formats numbers in a dollar format
     def change_two_decimals
       @balance = sprintf('%0.2f', @balance)  # => "550.50"
@@ -67,21 +64,38 @@ module Bank
         display_current_balance
       end
     end
+
+# returns all accounts when called
+    def self.all
+      ap @@accounts
+    end
+
+# returns an instance of Account where the value of the id field in the CSV matches the passed parameter
+    def self.find(id_number)
+      @@accounts.each do |account|
+        if account.id == id_number
+          matching_account = account
+          puts "That matches an ID in our system. Here is your account information."
+          return ap matching_account
+        end
+      end
+      puts "That ID does not match any accounts in our system."
+    end
   end
 
 # class for the owners of these bank accounts
   class Owner
 
-    attr_accessor :first_name, :last_name, :street_address, :city, :state, :zip
+    attr_accessor :first_name, :last_name, :owner_ID,  :street_address, :city, :state
 # initializes user tied to bank account
     def initialize (owner_hash)
 
       @first_name = owner_hash[:first_name]
       @last_name = owner_hash[:last_name]
+      @owner_ID = owner_hash[:owner_ID]
       @address = owner_hash[:street_address]
       @city = owner_hash[:city]
       @state = owner_hash[:state]
-      @zip = owner_hash[:zip]
 
     end
 
@@ -102,7 +116,15 @@ module Bank
   end
 end
 
-Bank::Account.new
+Bank::Account.accounts
+puts
+Bank::Account.all
+puts
+Bank::Account.find(1213)
+puts
+Bank::Account.find(1223)
+
+
 # account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
 #
 # account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
