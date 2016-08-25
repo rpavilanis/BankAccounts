@@ -86,52 +86,62 @@ module Bank
 # child class of account
 class SavingsAccount < Account
 
-attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest
-# takes functionality from Account class, with exception of minimum balance
-def initialize (account_hash)
-  super
-  unless @balance >= 10
-    raise ArgumentError.new("You need a balance of at least $10 to open your account.")
+  attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest
+  # takes functionality from Account class, with exception of minimum balance
+  def initialize (account_hash)
+    super
+    unless @balance >= 10
+      raise ArgumentError.new("You need a balance of at least $10 to open your account.")
+    end
   end
-end
 
-# overwrites the withdraw class from Account to create new functionality (2.00 fee for each withdrawal)
-def withdraw(withdraw_amount)
+  # overwrites the withdraw class from Account to create new functionality (2.00 fee for each withdrawal)
+  def withdraw(withdraw_amount)
 
-  if @balance.to_f - (withdraw_amount.to_f + 2.00) < 10.00
-    raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
-  else
-    @balance = @balance.to_f - (withdraw_amount.to_f + 2.00)
-    display_current_balance
+    if @balance.to_f - (withdraw_amount.to_f + 2.00) < 10.00
+      raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
+    else
+      @balance = @balance.to_f - (withdraw_amount.to_f + 2.00)
+      display_current_balance
+    end
   end
+
+  # adds a calculation for interest rate
+  def add_interest(rate)
+    interest = @balance.to_f * (rate/100)
+    @balance = interest + @balance.to_f
+    return "You have accumulated #{interest} of interest on your account."
+  end
+
 end
 
-# adds a calculation for interest rate
-def add_interest(rate)
-  @interest = @balance.to_f * (rate/100)
-  @balance = @interest + @balance.to_f
-  return "You have accumulated #{interest} of interest on your account."
-end
+# child class of Account
+class CheckingAccount < Account
 
-  # #add_interest(rate): Calculate the interest on the balance and add the interest to the balance. Return the interest that was calculated and added to the balance (not the updated balance).
-  # Input rate is assumed to be a percentage (i.e. 0.25).
-  # The formula for calculating interest is balance * rate/100
-  # Example: If the interest rate is 0.25% and the balance is $10,000, then the interest that is returned is $25 and the new balance becomes $10,025.
-end
+  def withdraw (withdraw_amount)
+    if @balance.to_f - (withdraw_amount.to_f + 1.00) < 0.00
+      raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
+    else
+      @balance = @balance.to_f - (withdraw_amount.to_f + 1.00)
+      display_current_balance
+    end
 
-
+    def withdraw_using_check(amount)
 
 
-# class CheckingAccount
+    end
+
+    def reset_checks
+
+    end 
+  end
 
 # Updated withdrawal functionality:
-# Each withdrawal 'transaction' incurs a fee of $1 that is taken out of the balance. Returns the updated account balance.
-# Does not allow the account to go negative. Will output a warning message and return the original un-modified balance.
 # #withdraw_using_check(amount): The input amount gets taken out of the account as a result of a check withdrawal. Returns the updated account balance.
 # Allows the account to go into overdraft up to -$10 but not any lower
 # The user is allowed three free check uses in one month, but any subsequent use adds a $2 transaction fee
 #reset_checks: Resets the number of checks used to zero
-# end
+end
 
 
 
