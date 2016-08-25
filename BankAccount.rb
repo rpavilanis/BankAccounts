@@ -83,10 +83,57 @@ module Bank
     end
   end
 
+# child class of account
+class SavingsAccount
+
+attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date
+
+def initialize (account_hash)
+
+end 
+
+  # The initial balance cannot be less than $10. If it is, this will raise an ArgumentError
+  # Updated withdrawal functionality:
+  # Each withdrawal 'transaction' incurs a fee of $2 that is taken out of the balance.
+  # Does not allow the account to go below the $10 minimum balance - Will output a warning message and return the original un-modified balance
+  # It should include the following new method:
+  #
+  # #add_interest(rate): Calculate the interest on the balance and add the interest to the balance. Return the interest that was calculated and added to the balance (not the updated balance).
+  # Input rate is assumed to be a percentage (i.e. 0.25).
+  # The formula for calculating interest is balance * rate/100
+  # Example: If the interest rate is 0.25% and the balance is $10,000, then the interest that is returned is $25 and the new balance becomes $10,025.
+end
+
+
+
+
+# class CheckingAccount
+
+# Updated withdrawal functionality:
+# Each withdrawal 'transaction' incurs a fee of $1 that is taken out of the balance. Returns the updated account balance.
+# Does not allow the account to go negative. Will output a warning message and return the original un-modified balance.
+# #withdraw_using_check(amount): The input amount gets taken out of the account as a result of a check withdrawal. Returns the updated account balance.
+# Allows the account to go into overdraft up to -$10 but not any lower
+# The user is allowed three free check uses in one month, but any subsequent use adds a $2 transaction fee
+#reset_checks: Resets the number of checks used to zero
+# end
+
+
+
+
+
+
+
+
+
+
+
+
+
 # class for the owners of these bank accounts
   class Owner
 
-    attr_accessor :owner_ID, :first_name, :last_name,   :street_address, :city, :state
+    attr_accessor :owner_ID, :first_name, :last_name, :street_address, :city, :state
 # initializes user tied to bank account
     def initialize (owner_hash)
 
@@ -133,14 +180,24 @@ module Bank
       end
       puts "That ID does not match any users in our system."
     end
-  end
 
-    # def to_s
-    #   return "Name: #{@first_name}."
-    #   puts "Name: #{@first_name}."
+# method to combine users with their accounts
+# This method should return a collection of Account instances that belong to the specific owner.
+    # def accounts(id)
+    #   CSV.open("support/account_owners.csv", "r").each do |line|
+    #
+    #
+    #   end
+    #     # be able to find an account and pull it based on owner ID - iterate through owner IDS until it finds
+    #     # one you are searching for, and then based on what account ID in line[0] is, find that account (iterate through accounts) and return it
+    #
+    #
+    #
     # end
-end
 
+
+  end
+end
 
 # Bank::Account.accounts
 # puts
@@ -150,13 +207,13 @@ end
 # puts
 # Bank::Account.find(1223)
 
-Bank::Owner.owners
-puts
-Bank::Owner.all
-puts
-Bank::Owner.find(16)
-puts
-Bank::Owner.find(50)
+# Bank::Owner.owners
+# puts
+# Bank::Owner.all
+# puts
+# Bank::Owner.find(16)
+# puts
+# Bank::Owner.find(50)
 
 
 # account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
