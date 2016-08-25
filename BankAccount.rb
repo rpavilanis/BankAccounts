@@ -11,7 +11,7 @@ module Bank
 # class for bank accounts
   class Account
 
-    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date
+    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest
 # initializes bank account with an ID and starting balance, returns Argument Error if proposed starting balance is not at or above 0.
     def initialize (account_hash)
       @id = account_hash[:id]
@@ -46,7 +46,7 @@ module Bank
 # displays the current balance, using the formatting from the change_two_decimals method
     def display_current_balance
       change_two_decimals
-      puts "Your current balance is $#{@balance}."
+      return "Your current balance is $#{@balance}."
     end
 # allows deposits to be made, and adds deposit amount to current balance
     def deposit (deposit_amount)
@@ -57,7 +57,7 @@ module Bank
 # this amount would be less than 0. In that case, an error is returned.
     def withdraw (withdraw_amount)
       if @balance.to_f - withdraw_amount.to_f < 0
-        raise ArgumentError.new("You do not have enough money in account to make that withdrawal.")
+        raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
         display_current_balance
       else
         @balance = @balance.to_f - withdraw_amount.to_f
@@ -86,22 +86,33 @@ module Bank
 # child class of account
 class SavingsAccount < Account
 
-attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date
-
+attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest
+# takes functionality from Account class, with exception of minimum balance
 def initialize (account_hash)
   super
   unless @balance >= 10
     raise ArgumentError.new("You need a balance of at least $10 to open your account.")
   end
-
 end
 
-  # The initial balance cannot be less than $10. If it is, this will raise an ArgumentError
-  # Updated withdrawal functionality:
-  # Each withdrawal 'transaction' incurs a fee of $2 that is taken out of the balance.
-  # Does not allow the account to go below the $10 minimum balance - Will output a warning message and return the original un-modified balance
-  # It should include the following new method:
-  #
+# overwrites the withdraw class from Account to create new functionality (2.00 fee for each withdrawal)
+def withdraw(withdraw_amount)
+
+  if @balance.to_f - (withdraw_amount.to_f + 2.00) < 10.00
+    raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
+  else
+    @balance = @balance.to_f - (withdraw_amount.to_f + 2.00)
+    display_current_balance
+  end
+end
+
+# adds a calculation for interest rate
+def add_interest(rate)
+  @interest = @balance.to_f * (rate/100)
+  @balance = @interest + @balance.to_f
+  return "You have accumulated #{interest} of interest on your account."
+end
+
   # #add_interest(rate): Calculate the interest on the balance and add the interest to the balance. Return the interest that was calculated and added to the balance (not the updated balance).
   # Input rate is assumed to be a percentage (i.e. 0.25).
   # The formula for calculating interest is balance * rate/100
@@ -203,9 +214,14 @@ end
   end
 end
 
-account = Bank::SavingsAccount.new(id: 45567, balance: 9.00)
+account = Bank::SavingsAccount.new(id: 45567, balance: 100.00)
 
-ap account
+ap account.withdraw(5.00)
+ap account.display_current_balance
+ap account.add_interest(0.25)
+ap account.display_current_balance
+
+
 
 # Bank::Account.accounts
 # puts
@@ -224,18 +240,18 @@ ap account
 # Bank::Owner.find(50)
 
 
-account1 = Bank::Account.new(id: "45567", balance: -1.00, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
-#
-# account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
-#
-# puts account.display_current_balance
-# puts account.deposit(50.65)
-# puts account.withdraw(500.00)
-# puts account.id
-# puts
-# puts
-ap account1
-#
+# account1 = Bank::Account.new(id: "45567", balance: -1.00, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
+# #
+# # account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
+# #
+# # puts account.display_current_balance
+# # puts account.deposit(50.65)
+# # puts account.withdraw(500.00)
+# # puts account.id
+# # puts
+# # puts
+# ap account1
+# #
 # puts account2.display_current_balance
 # puts account2.deposit(100.00)
 # puts account2.withdraw(300.00)
