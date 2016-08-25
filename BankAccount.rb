@@ -84,13 +84,17 @@ module Bank
   end
 
 # child class of account
-class SavingsAccount
+class SavingsAccount < Account
 
 attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date
 
 def initialize (account_hash)
+  super
+  unless @balance >= 10
+    raise ArgumentError.new("You need a balance of at least $10 to open your account.")
+  end
 
-end 
+end
 
   # The initial balance cannot be less than $10. If it is, this will raise an ArgumentError
   # Updated withdrawal functionality:
@@ -199,6 +203,10 @@ end
   end
 end
 
+account = Bank::SavingsAccount.new(id: 45567, balance: 9.00)
+
+ap account
+
 # Bank::Account.accounts
 # puts
 # Bank::Account.all
@@ -216,7 +224,7 @@ end
 # Bank::Owner.find(50)
 
 
-# account = Bank::Account.new(id: "45567", balance: 575.256, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
+account1 = Bank::Account.new(id: "45567", balance: -1.00, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
 #
 # account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
 #
@@ -226,7 +234,7 @@ end
 # puts account.id
 # puts
 # puts
-# puts account
+ap account1
 #
 # puts account2.display_current_balance
 # puts account2.deposit(100.00)
