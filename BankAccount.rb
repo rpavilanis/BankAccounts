@@ -154,12 +154,13 @@ end
 # child class of Account
 class MoneyMarketAccount < Account
 
-attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount
+attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount, :rate, :interest
 attr_reader :maximum_transactions, :minimum_balance, :fee, :transactions
 
 # used super to copy from parent class, Account
   def initialize (account_hash)
     super
+    @rate
     @maximum_transactions = 6
     @transactions = 0
     @minimum_balance = 10000
@@ -169,41 +170,48 @@ attr_reader :maximum_transactions, :minimum_balance, :fee, :transactions
   end
 # changed fee/min. balance, used withdraw_helper from parent class
   def withdraw (withdraw_amount)
-    if transactions <= 6 && @balance >= minimum_balance
-      transactions += 1
-      withdraw_helper(withdraw_amount, 0, 10000.00) # calls helper method from parent class (amount, fee, min balance)
-        if (@balance - withdraw_amount) < minimum_balance
-          @balance = 100 + @balance
+    if transactions < 6 && @balance.to_f >= minimum_balance
+      @transactions += 1
+      withdraw_helper(withdraw_amount, 0, 0) # calls helper method from parent class (amount, fee, min balance)
+        if (@balance.to_f - withdraw_amount.to_f) < minimum_balance
+          @transactions += 1
+          @balance = @balance.to_f - 100
+          return "Your withdrawal puts you below your minimum balance of 10,000. Your current balance is $#{@balance}. Please deposit money to put you above the limit. You will not be able to make further withdrawals until you do so."
         end
-    elsif @balance < minimum_balance
+      display_current_balance
+    elsif @balance.to_f < minimum_balance
       return "You are not currently allowed to make a withdraw. Your current balance is #{@balance}. Please deposit some money into your account to put you above the minimum balance of $10,000."
-    else
-      return "You have reached your maximum transactions for the month."
+    elsif transactions >= 6
+      return "You have reached your maximum number of transactions for the month."
     end
   end
-# added add_interest method from SavingsAccount class
-  def add_interest(rate)
-    super
+# added add_interest method (copied from SavingsAccount method - couldn't figure out how to not reuse code here)
+  def add_interest_money(rate)
+    interest = @balance.to_f * (rate/100)
+    interest = sprintf('%0.2f', interest)
+    @balance = interest.to_f + @balance.to_f
+    return "You have accumulated $#{interest} of interest on your account."
   end
 # users only allowed six transactions a month
   def reset_transactions
-    transactions = 0
+    @transactions = 0
     return "We have reached the start of a new month - you now have six transactions to use for the month."
   end
 # allows deposits to be made, and adds deposit amount to current balance
   def deposit (deposit_amount)
-    if transactions <= 6 && @balance >= minimum_balance
-      transactions += 1
+    if (transactions < 6) && (@balance.to_f >= minimum_balance)
+      @transactions += 1
       super
-    elsif @balance < minimum_balance
-       super
-       if (@balance + deposit_amount) >= minimum_balance
+    elsif @balance.to_f < minimum_balance
+       if (@balance.to_f + deposit_amount.to_f) >= minimum_balance
+         super
          return "You have made a deposit that puts you above the minimum balance. This transaction will not count against your monthly transactions."
-       else
-         transactions += 1
+       elsif (@balance.to_f + deposit_amount.to_f) < minimum_balance
+         @transactions += 1
+         super
          return "Please deposit additional funds to raise your balance above the minimum."
        end
-    else
+    elsif transactions >= 6
       return "You have reached your maximum transactions for the month."
     end
   end
@@ -273,28 +281,9 @@ end
     # end
   end
 end
-#
-# account = Bank::SavingsAccount.new(id: 45567, balance: 100.00)
-#
-# ap account.withdraw(5.00)
-# ap account.display_current_balance
-# ap account.add_interest(0.25)
-# ap account.display_current_balance
-
-# account = Bank::CheckingAccount.new(id: 45567, balance: 200.00)
-#
-# # ap account.withdraw(50.00)
-# ap account.withdraw_using_check(50.00)
-# ap account.withdraw_using_check(50.00)
-# ap account.withdraw_using_check(50.00)
-# # ap account.withdraw_using_check(61.00) # try this to make sure min balance/fee works for checking when writing check - works
-# ap account.withdraw(50.00) # this tests that min balance/fee works for checking  - works
-# ap account.reset_checks # resets checks to 0 if there are more than 3
-# ap account.withdraw_using_check(50.00)
-
-moneymarket1 = Bank::MoneyMarketAccount.new(id: 45567, balance: 200.00)
 
 
+# TESTING FOR GENERAL ACCOUNT AND USER CLASSES
 
 # Bank::Account.accounts
 # puts
@@ -329,3 +318,47 @@ moneymarket1 = Bank::MoneyMarketAccount.new(id: 45567, balance: 200.00)
 # puts account2.deposit(100.00)
 # puts account2.withdraw(300.00)
 # puts account2
+
+
+# TESTING FOR SAVINGS ACCOUNT METHOD:
+# account = Bank::SavingsAccount.new(id: 45567, balance: 100.00)
+#
+# ap account.withdraw(5.00)
+# ap account.display_current_balance
+# ap account.add_interest(0.25)
+# ap account.display_current_balance
+
+# TESTING FOR CHECKING ACCOUNT METHOD:
+# account = Bank::CheckingAccount.new(id: 45567, balance: 200.00)
+#
+# ap account.withdraw(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(61.00) # try this to make sure min balance/fee works for checking when writing check - works
+# ap account.withdraw(50.00) # this tests that min balance/fee works for checking  - works
+# ap account.reset_checks # resets checks to 0 if there are more than 3
+# ap account.withdraw_using_check(50.00)
+
+# moneymarket1 = Bank::MoneyMarketAccount.new(id: 45567, balance: 10500.00)
+#
+# ap moneymarket1.deposit(50.00)
+# ap moneymarket1.add_interest_money(0.50)
+# ap moneymarket1.withdraw(700.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.reset_transactions
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.deposit(300.00)
+# ap moneymarket1.withdraw(100.00)
+# ap moneymarket1.withdraw(800.00)
+# ap moneymarket1.reset_transactions
+# ap moneymarket1.withdraw(100.00)
+# ap moneymarket1.withdraw(800.00)
+# ap moneymarket1.withdraw(100.00)
+# ap moneymarket1.withdraw(800.00)
+# ap moneymarket1.withdraw(100.00)
