@@ -21,7 +21,7 @@ module Bank
       @fee = 0
       @minimum_balance = 0
 
-      if @balance < 0
+      if @balance < @minimum_balance
         raise ArgumentError.new("You need a balance above $0 to open your account.")
       end
     end
@@ -102,6 +102,10 @@ class SavingsAccount < Account
   def withdraw(withdraw_amount)
     withdraw_helper(withdraw_amount, 2.00, minimum_balance) # calls helper method from parent class (amount, fee, min balance)
   end
+# allows deposits to be made, and adds deposit amount to current balance
+  def deposit (deposit_amount)
+    super
+  end
   # adds a calculation for interest rate
   def add_interest(rate)
     interest = @balance.to_f * (rate/100)
@@ -141,34 +145,70 @@ attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_d
         display_current_balance
       end
   end
+# allows deposits to be made, and adds deposit amount to current balance
+  def deposit (deposit_amount)
+    super
+  end
 end
 
 # child class of Account
 class MoneyMarketAccount < Account
 
-attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount, :checks, :days, :fee, :minimum_balance
+attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount
+attr_reader :maximum_transactions, :minimum_balance, :fee, :transactions
 
 # used super to copy from parent class, Account
   def initialize (account_hash)
     super
-    @minimum_balance = 10,000
-    
+    @maximum_transactions = 6
+    @transactions = 0
+    @minimum_balance = 10000
+    if @balance < @minimum_balance
+      raise ArgumentError.new("You need a balance above $10,000 to open your account.")
+    end
   end
+# changed fee/min. balance, used withdraw_helper from parent class
+  def withdraw (withdraw_amount)
+    if transactions <= 6 && @balance >= minimum_balance
+      transactions += 1
+      withdraw_helper(withdraw_amount, 0, 10000.00) # calls helper method from parent class (amount, fee, min balance)
+    else
+      return "You have reached your maximum transactions for the month."
+    end
+  end
+# added add_interest method from SavingsAccount class
+  def add_interest(rate)
+    super
+  end
+# users only allowed six transactions a month
+  def reset_transactions
+    transactions = 0
+    return "We have reached the start of a new month - you now have six transactions to use for the month."
+  end
+# allows deposits to be made, and adds deposit amount to current balance
+  def deposit (deposit_amount)
+    if transactions <= 6 && @balance >= minimum_balance
+      transactions += 1
+      super
+    elsif @balance < minimum_balance
+       super
+       if (@balance + deposit_amount) >= minimum_balance
+         return "You have made a deposit that puts you above the minimum balance. This transaction will not count against your monthly transactions."
+       else
+         transactions += 1
+         return "Please deposit additional funds to raise your balance above the minimum."
+       end
+    else
+      return "You have reached your maximum transactions for the month."
+    end
+  end
+end
 
 
-# Create a MoneyMarketAccount class which should inherit behavior from the Account class.
-#
-# A maximum of 6 transactions (deposits or withdrawals) are allowed per month on this account type
-# The initial balance cannot be less than $10,000 - this will raise an ArgumentError
 # Updated withdrawal logic:
 # If a withdrawal causes the balance to go below $10,000, a fee of $100 is imposed and no more transactions are allowed until the balance is increased using a deposit transaction.
-# Each transaction will be counted against the maximum number of transactions
-# Updated deposit logic:
-# Each transaction will be counted against the maximum number of transactions
-# Exception to the above: A deposit performed to reach or exceed the minimum balance of $10,000 is not counted as part of the 6 transactions.
-# #add_interest(rate): Calculate the interest on the balance and add the interest to the balance. Return the interest that was calculated and added to the balance (not the updated balance).
-# Note** This is the same as the SavingsAccount interest.
-# #reset_transactions: Resets the number of transactions to zero
+
+
 
 # class for the owners of these bank accounts
   class Owner
@@ -241,18 +281,18 @@ end
 # ap account.add_interest(0.25)
 # ap account.display_current_balance
 
-account = Bank::CheckingAccount.new(id: 45567, balance: 200.00)
-
-# ap account.withdraw(50.00)
-ap account.withdraw_using_check(50.00)
-ap account.withdraw_using_check(50.00)
-ap account.withdraw_using_check(50.00)
-# ap account.withdraw_using_check(61.00) # try this to make sure min balance/fee works for checking when writing check - works
-ap account.withdraw(50.00) # this tests that min balance/fee works for checking  - works
-ap account.reset_checks # resets checks to 0 if there are more than 3
+# account = Bank::CheckingAccount.new(id: 45567, balance: 200.00)
+#
+# # ap account.withdraw(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(50.00)
+# # ap account.withdraw_using_check(61.00) # try this to make sure min balance/fee works for checking when writing check - works
+# ap account.withdraw(50.00) # this tests that min balance/fee works for checking  - works
+# ap account.reset_checks # resets checks to 0 if there are more than 3
 # ap account.withdraw_using_check(50.00)
 
-
+moneymarket1 = Bank::MoneyMarketAccount.new(id: 45567, balance: 200.00)
 
 
 
