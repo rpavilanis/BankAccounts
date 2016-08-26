@@ -172,6 +172,11 @@ attr_reader :maximum_transactions, :minimum_balance, :fee, :transactions
     if transactions <= 6 && @balance >= minimum_balance
       transactions += 1
       withdraw_helper(withdraw_amount, 0, 10000.00) # calls helper method from parent class (amount, fee, min balance)
+        if (@balance - withdraw_amount) < minimum_balance
+          @balance = 100 + @balance
+        end
+    elsif @balance < minimum_balance
+      return "You are not currently allowed to make a withdraw. Your current balance is #{@balance}. Please deposit some money into your account to put you above the minimum balance of $10,000."
     else
       return "You have reached your maximum transactions for the month."
     end
@@ -203,11 +208,6 @@ attr_reader :maximum_transactions, :minimum_balance, :fee, :transactions
     end
   end
 end
-
-
-# Updated withdrawal logic:
-# If a withdrawal causes the balance to go below $10,000, a fee of $100 is imposed and no more transactions are allowed until the balance is increased using a deposit transaction.
-
 
 
 # class for the owners of these bank accounts
