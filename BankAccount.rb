@@ -56,8 +56,12 @@ module Bank
 # allows withdrawals to be made, and subtracts deposit amount from current balance, unless
 # this amount would be less than 0. In that case, an error is returned.
     def withdraw (withdraw_amount)
+      withdraw_helper(withdraw_amount, 0, minimum_balance)
+    end
+# helper method for withdraw
+    def withdraw_helper (withdraw_amount, fee, minimum_balance)
       if @balance.to_f - (withdraw_amount.to_f + fee) < minimum_balance
-        raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
+        raise ArgumentError.new("You do not have enough money in account to make that withdrawal. #{display_current_balance}")
       else
         @balance = @balance.to_f - (withdraw_amount.to_f + fee)
         display_current_balance
@@ -94,10 +98,9 @@ class SavingsAccount < Account
       raise ArgumentError.new("You need a balance of at least $10 to open your account.")
     end
   end
-  # uses the withdraw class from Account - 2.00 fee for each withdrawal
+  # uses the withdraw_helper class from Account - 2.00 fee for each withdrawal
   def withdraw(withdraw_amount)
-    @fee = 2.00
-    super
+    withdraw_helper(withdraw_amount, 2.00, minimum_balance) # calls helper method from parent class (amount, fee, min balance)
   end
   # adds a calculation for interest rate
   def add_interest(rate)
@@ -117,36 +120,55 @@ attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_d
     super
     @checks = 0
   end
-# changed fee, used super to copy from parent class
+# changed fee, used withdraw_helper from parent class
   def withdraw (withdraw_amount)
-    @fee = 1.00
-    super
+    withdraw_helper(withdraw_amount, 1.00, 0.00) # calls helper method from parent class (amount, fee, min balance)
   end
-
-  # def days_passed
-  #   endDate = Date.new(2016, 1, 1)
-  #   beginDate = Date.new(2016, 1, 3)
-  #   days = beginDate - endDate
-  #
-  #   days.to_i
-  # end
-
+# method reset checks at end of every month, emulates time passing
   def reset_checks
       @checks = 0
+      return "We have reached the start of a new month - you now have three checks to use for free.  After your first three checks this month, you will incur a fee of 2.00 per check."
   end
-
-  def withdraw_using_check(amount)
-    @minimum_balance = -10.00
-    if checks <= 3
-      @fee = 0.00
-      withdraw(amount)
-    else
-      @fee = 2.00
-
-    end
+# withdraw money from account using check
+  def withdraw_using_check(withdraw_amount)
+      if checks <= 3
+        withdraw_helper(withdraw_amount, 0, -10.00) # calls helper method from parent class (amount, fee, min balance)
+        @checks += 1
+        display_current_balance
+      else
+        withdraw_helper(withdraw_amount, 2.00, -10.00) # calls helper method from parent class (amount, fee, min balance)
+        @checks += 1
+        display_current_balance
+      end
   end
 end
 
+# child class of Account
+class MoneyMarketAccount < Account
+
+attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount, :checks, :days, :fee, :minimum_balance
+
+# used super to copy from parent class, Account
+  def initialize (account_hash)
+    super
+    @minimum_balance = 10,000
+    
+  end
+
+
+# Create a MoneyMarketAccount class which should inherit behavior from the Account class.
+#
+# A maximum of 6 transactions (deposits or withdrawals) are allowed per month on this account type
+# The initial balance cannot be less than $10,000 - this will raise an ArgumentError
+# Updated withdrawal logic:
+# If a withdrawal causes the balance to go below $10,000, a fee of $100 is imposed and no more transactions are allowed until the balance is increased using a deposit transaction.
+# Each transaction will be counted against the maximum number of transactions
+# Updated deposit logic:
+# Each transaction will be counted against the maximum number of transactions
+# Exception to the above: A deposit performed to reach or exceed the minimum balance of $10,000 is not counted as part of the 6 transactions.
+# #add_interest(rate): Calculate the interest on the balance and add the interest to the balance. Return the interest that was calculated and added to the balance (not the updated balance).
+# Note** This is the same as the SavingsAccount interest.
+# #reset_transactions: Resets the number of transactions to zero
 
 # class for the owners of these bank accounts
   class Owner
@@ -197,7 +219,7 @@ end
       puts "That ID does not match any users in our system."
     end
 # method to combine users with their accounts
-# This method should return a collection of Account instances that belong to the specific owner.
+# This method should return a collection of Account instances that belong to the specific owner. find method?
     # def accounts(id)
     #   CSV.open("support/account_owners.csv", "r").each do |line|
     #
@@ -219,13 +241,17 @@ end
 # ap account.add_interest(0.25)
 # ap account.display_current_balance
 
-account = Bank::CheckingAccount.new(id: 45567, balance: 300.00)
+account = Bank::CheckingAccount.new(id: 45567, balance: 200.00)
 
 # ap account.withdraw(50.00)
 ap account.withdraw_using_check(50.00)
+ap account.withdraw_using_check(50.00)
+ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(61.00) # try this to make sure min balance/fee works for checking when writing check - works
+ap account.withdraw(50.00) # this tests that min balance/fee works for checking  - works
+ap account.reset_checks # resets checks to 0 if there are more than 3
 # ap account.withdraw_using_check(50.00)
-# ap account.withdraw_using_check(50.00)
-# ap account.days_passed
+
 
 
 
@@ -246,16 +272,16 @@ ap account.withdraw_using_check(50.00)
 # puts
 # Bank::Owner.find(50)
 
-
-# account1 = Bank::Account.new(id: "45567", balance: -1.00, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
-# #
-# # account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
-# #
-# # puts account.display_current_balance
-# # puts account.deposit(50.65)
-# # puts account.withdraw(500.00)
-# # puts account.id
-# # puts
+#
+# account1 = Bank::Account.new(id: "45567", balance: 1000.00, first_name: "Rachel", last_name: "Pavilanis", street_address: "1415 Terminal", city: "Niles", state: "MI", zip: "49120")
+# # #
+# # # # # account2 = Bank::Account.new(id: "45566", balance: 75.256, first_name: "Matthew", last_name: "Pavilanis", street_address: "2150 McLean", city: "Eugene", state: "OR", zip: "97405")
+# # # # #
+# puts account1.display_current_balance
+# puts account1.deposit(50.65)
+# puts account1.withdraw(500.00)
+# puts account1.id
+# # # puts
 # # puts
 # ap account1
 # #
