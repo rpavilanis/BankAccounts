@@ -11,19 +11,20 @@ module Bank
 # class for bank accounts
   class Account
 
-    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest
+    attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest, :fee, :minimum_balance
 # initializes bank account with an ID and starting balance, returns Argument Error if proposed starting balance is not at or above 0.
     def initialize (account_hash)
       @id = account_hash[:id]
       @balance = account_hash[:balance]
       @open_date = account_hash[:open_date]
       @owner = Owner.new(account_hash)
+      @fee = 0
+      @minimum_balance = 0
 
-      unless @balance >= 0
+      if @balance < 0
         raise ArgumentError.new("You need a balance above $0 to open your account.")
       end
     end
-
 # class to read in CSV File
     def self.accounts
 
@@ -38,7 +39,6 @@ module Bank
         @@accounts << Bank::Account.new(account_hash)
       end
     end
-
 # formats numbers in a dollar format
     def change_two_decimals
       @balance = sprintf('%0.2f', @balance)  # => "550.50"
@@ -56,20 +56,17 @@ module Bank
 # allows withdrawals to be made, and subtracts deposit amount from current balance, unless
 # this amount would be less than 0. In that case, an error is returned.
     def withdraw (withdraw_amount)
-      if @balance.to_f - withdraw_amount.to_f < 0
+      if @balance.to_f - (withdraw_amount.to_f + fee) < minimum_balance
         raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
-        display_current_balance
       else
-        @balance = @balance.to_f - withdraw_amount.to_f
+        @balance = @balance.to_f - (withdraw_amount.to_f + fee)
         display_current_balance
       end
     end
-
 # returns all accounts when called
     def self.all
       ap @@accounts
     end
-
 # returns an instance of Account where the value of the id field in the CSV matches the passed parameter
     def self.find(id_number)
       @@accounts.each do |account|
@@ -86,59 +83,92 @@ module Bank
 # child class of account
 class SavingsAccount < Account
 
-  attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :interest
+  attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :fee, :minimum_balance
+  attr_reader :interest
   # takes functionality from Account class, with exception of minimum balance
   def initialize (account_hash)
     super
+    @minimum_balance = 10.00
+    @interest
     unless @balance >= 10
       raise ArgumentError.new("You need a balance of at least $10 to open your account.")
     end
   end
-
-  # overwrites the withdraw class from Account to create new functionality (2.00 fee for each withdrawal)
+  # uses the withdraw class from Account - 2.00 fee for each withdrawal
   def withdraw(withdraw_amount)
-
-    if @balance.to_f - (withdraw_amount.to_f + 2.00) < 10.00
-      raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
-    else
-      @balance = @balance.to_f - (withdraw_amount.to_f + 2.00)
-      display_current_balance
-    end
+    @fee = 2.00
+    super
   end
-
   # adds a calculation for interest rate
   def add_interest(rate)
     interest = @balance.to_f * (rate/100)
-    @balance = interest + @balance.to_f
-    return "You have accumulated #{interest} of interest on your account."
+    interest = sprintf('%0.2f', interest)
+    @balance = interest.to_f + @balance.to_f
+    return "You have accumulated $#{interest} of interest on your account."
   end
-
 end
 
 # child class of Account
 class CheckingAccount < Account
 
-  def withdraw (withdraw_amount)
-    if @balance.to_f - (withdraw_amount.to_f + 1.00) < 0.00
-      raise ArgumentError.new("You do not have enough money in account to make that withdrawal. Your current balance is #{display_current_balance}")
-    else
-      @balance = @balance.to_f - (withdraw_amount.to_f + 1.00)
-      display_current_balance
-    end
+attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount, :checks, :days, :fee, :minimum_balance
 
-    def withdraw_using_check(amount)
-
-
-    end
-
-    def reset_checks
-
-    end 
+  def initialize (account_hash)
+    super
+    @checks = 0
   end
 
-# Updated withdrawal functionality:
-# #withdraw_using_check(amount): The input amount gets taken out of the account as a result of a check withdrawal. Returns the updated account balance.
-# Allows the account to go into overdraft up to -$10 but not any lower
+  def withdraw (withdraw_amount)
+    @fee = 1.00
+    super
+  end
+
+  def days_passed
+    endDate = Date.new(2016, 1, 1)
+    beginDate = Date.new(2016, 1, 3)
+    days = beginDate - endDate
+
+    days.to_i
+  end
+
+  def reset_checks
+    if days_passed > 30
+      @checks = 0
+    end
+  end
+
+  def withdraw_using_check(amount)
+    if checks <= 3
+      fee = 0.00
+    else
+      fee = 2.00
+    withdraw
+
+    super
+
+    end
+  end
+
+      # if (@balance.to_f - amount.to_f) < -10.00
+      #   raise ArgumentError.new("You do not have enough money in account to write that check. Your current balance is #{display_current_balance}")
+      # else
+      #   @balance = @balance.to_f - amount.to_f
+      #
+      #   @checks = @checks + 1
+      #   display_current_balance
+      # end
+      # reset_checks
+      # display_current_balance
+
+
+
+
+
+
+
+
+
+
 # The user is allowed three free check uses in one month, but any subsequent use adds a $2 transaction fee
 #reset_checks: Resets the number of checks used to zero
 end
@@ -230,6 +260,15 @@ ap account.withdraw(5.00)
 ap account.display_current_balance
 ap account.add_interest(0.25)
 ap account.display_current_balance
+
+account = Bank::CheckingAccount.new(id: 45567, balance: 300.00)
+
+ap account.withdraw(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.withdraw_using_check(50.00)
+# ap account.days_passed
+
 
 
 
