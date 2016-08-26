@@ -112,77 +112,40 @@ end
 class CheckingAccount < Account
 
 attr_accessor :deposit_amount, :withdraw_amount, :owner, :id, :accounts, :open_date, :amount, :checks, :days, :fee, :minimum_balance
-
+# used super to copy from parent class, Account, created checks variable
   def initialize (account_hash)
     super
     @checks = 0
   end
-
+# changed fee, used super to copy from parent class
   def withdraw (withdraw_amount)
     @fee = 1.00
     super
   end
 
-  def days_passed
-    endDate = Date.new(2016, 1, 1)
-    beginDate = Date.new(2016, 1, 3)
-    days = beginDate - endDate
-
-    days.to_i
-  end
+  # def days_passed
+  #   endDate = Date.new(2016, 1, 1)
+  #   beginDate = Date.new(2016, 1, 3)
+  #   days = beginDate - endDate
+  #
+  #   days.to_i
+  # end
 
   def reset_checks
-    if days_passed > 30
       @checks = 0
-    end
   end
 
   def withdraw_using_check(amount)
+    @minimum_balance = -10.00
     if checks <= 3
-      fee = 0.00
+      @fee = 0.00
+      withdraw(amount)
     else
-      fee = 2.00
-    withdraw
-
-    super
+      @fee = 2.00
 
     end
   end
-
-      # if (@balance.to_f - amount.to_f) < -10.00
-      #   raise ArgumentError.new("You do not have enough money in account to write that check. Your current balance is #{display_current_balance}")
-      # else
-      #   @balance = @balance.to_f - amount.to_f
-      #
-      #   @checks = @checks + 1
-      #   display_current_balance
-      # end
-      # reset_checks
-      # display_current_balance
-
-
-
-
-
-
-
-
-
-
-# The user is allowed three free check uses in one month, but any subsequent use adds a $2 transaction fee
-#reset_checks: Resets the number of checks used to zero
 end
-
-
-
-
-
-
-
-
-
-
-
 
 
 # class for the owners of these bank accounts
@@ -218,12 +181,10 @@ end
         @@users << Bank::Owner.new(owner_hash)
       end
     end
-
 # returns all accounts when called
     def self.all
       ap @@users
     end
-
 # returns an instance of User where the value of the id field in the CSV matches the passed parameter
     def self.find(id_number)
       @@users.each do |user|
@@ -235,7 +196,6 @@ end
       end
       puts "That ID does not match any users in our system."
     end
-
 # method to combine users with their accounts
 # This method should return a collection of Account instances that belong to the specific owner.
     # def accounts(id)
@@ -249,22 +209,20 @@ end
     #
     #
     # end
-
-
   end
 end
-
-account = Bank::SavingsAccount.new(id: 45567, balance: 100.00)
-
-ap account.withdraw(5.00)
-ap account.display_current_balance
-ap account.add_interest(0.25)
-ap account.display_current_balance
+#
+# account = Bank::SavingsAccount.new(id: 45567, balance: 100.00)
+#
+# ap account.withdraw(5.00)
+# ap account.display_current_balance
+# ap account.add_interest(0.25)
+# ap account.display_current_balance
 
 account = Bank::CheckingAccount.new(id: 45567, balance: 300.00)
 
-ap account.withdraw(50.00)
-# ap account.withdraw_using_check(50.00)
+# ap account.withdraw(50.00)
+ap account.withdraw_using_check(50.00)
 # ap account.withdraw_using_check(50.00)
 # ap account.withdraw_using_check(50.00)
 # ap account.days_passed
